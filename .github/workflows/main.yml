@@ -61,7 +61,7 @@ jobs:
 
     - name: Build and Push Docker image
       env:
-        DOCKER_REPOSITORY: rmontoza/applanchonete
+        DOCKER_REPOSITORY: rmontoza/mslanchonetecustomer
         IMAGE_TAG: latest
 
       run: |
