@@ -5,8 +5,7 @@ on:
       - master
   pull_request:
     branches:
-      - master  # Executa para pull requests direcionados à branch 'master'
-
+      - master  # Executa também para pull requests para a branch 'master'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,10 +20,10 @@ jobs:
         node-version: '20'
         
     - name: Install Dependencies
-      run: npm ci # Instala dependências de maneira reprodutível
+      run: npm ci # Usar 'npm ci' para garantir instalação reprodutível
 
     - name: Run Tests with Coverage
-      run: npm run test:ci # Gera o relatório de cobertura
+      run: npm run test:ci # Certifique-se de que este comando gera o relatório de cobertura
       env:
         CI: true
 
@@ -35,7 +34,7 @@ jobs:
         CI: true
 
     - name: Compile TypeScript
-      run: npm run build
+      run: npm run build # Certifique-se de que o comando "build" está configurado no seu package.json
       
     - name: Cache Node Modules
       uses: actions/cache@v3
@@ -44,20 +43,53 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-
-  validate_pull_request:
+          
+  push_to_docker_hub:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'pull_request' # Executa apenas no contexto de pull requests
+    if: github.ref == 'refs/heads/master' # Só faz o deploy se estiver na branch 'master'
     
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Verify Coverage
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build and Push Docker image
+      env:
+        DOCKER_REPOSITORY: rmontoza/mslanchonetecustomer
+        IMAGE_TAG: latest
+
       run: |
-        npx nyc report --reporter=text-summary
-        echo "Validando Pull Request para cobertura de código"
-      
-    - name: Check if Ready for Merge
-      run: echo "Ação concluída com sucesso. Pronto para revisão!"
+        docker build -t $DOCKER_REPOSITORY:$IMAGE_TAG .
+        docker push $DOCKER_REPOSITORY:$IMAGE_TAG
+
+  deploy_to_eks:
+    runs-on: ubuntu-latest
+    needs: push_to_docker_hub
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Update kubeconfig for EKS
+      run: |
+        aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
+    - name: Deploy to EKS
+      run: |
+          kubectl apply -f src/k8s/appLanchonete-configmap.yaml
+          kubectl apply -f src/k8s/appLanchonete-deployment.yaml
+          kubectl apply -f src/k8s/appLanchonete-service-aws.yaml
+          kubectl apply -f src/k8s/appLanchonete-hpa.yaml
