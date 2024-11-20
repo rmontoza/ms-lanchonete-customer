@@ -1,0 +1,35 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: "Dockerfile"
+    image: applanchonete
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb+srv://fiaplanchonete:JEtJsquiP7TTAqii@cluster0.em4vflc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+    restart: always
+    networks:
+      - server-net
+    depends_on:
+      - mongodb
+  mongodb:
+    container_name: mongodb
+    image: mongo:4.0.0
+    ports:
+      - "27018:27018"
+    command: mongod --port 27018
+    environment:
+      - MONGO_INITDB_DATABASE=fiap_lanchonete
+    restart: always
+    networks:
+      - server-net
+    volumes:
+      - mongodb_data:/data/db
+networks:
+  server-net:
+    driver: bridge
+volumes:
+  mongodb_data:
+    driver: local
