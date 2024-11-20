@@ -5,7 +5,7 @@ metadata:
   labels:
     app: ms-lanchonete-costumer-config
 data:
-  MYSQL_HOST: ms-lanchonete-customer-rds-instance.c1428q0gijk9.us-east-1.rds.amazonaws.com
+  MYSQL_HOST: lanchonete-rds-instance.c1428q0gijk9.us-east-1.rds.amazonaws.com
   MYSQL_PORT: "3306"
   MYSQL_USER: rmontoza
   MYSQL_PASSWORD: mtzL75svw63
