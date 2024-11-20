@@ -2,33 +2,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-lanchonete-deployment
+  name: ms-lanchonete-customer-deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: app-lanchonete-deployment
+      app: ms-lanchonete-customer-deployment
   template:
     metadata:
       labels:
-        app: app-lanchonete-deployment
+        app: ms-lanchonete-customer-deployment
     spec:
       containers:
-      - name: app-lanchonete
-        image: rmontoza/applanchonete:latest
+      - name: ms-lanchonete-customer
+        image: rmontoza/mslanchonetecustomer:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
         env:
-        - name: MONGODB_URI
+        - name: MYSQL_HOST
           valueFrom:
             configMapKeyRef:
-              name: app-lanchonete-config
-              key: MONGODB_URI
+              name: ms-lanchonete-costumer-config
+              key: MYSQL_HOST
+        - name: MYSQL_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: ms-lanchonete-costumer-config
+              key: MYSQL_PORT
+        - name: MYSQL_USER
+          valueFrom:
+            configMapKeyRef:
+              name: ms-lanchonete-costumer-config
+              key: MYSQL_USER
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: ms-lanchonete-costumer-config
+              key: MYSQL_PASSWORD
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: ms-lanchonete-costumer-config
+              key: MYSQL_DATABASE
         volumeMounts:
-        - name: app-lanchonete-volume
+        - name: ms-lanchonete-customer-volume
           mountPath: /app
         ##command: ["/start-web.sh"]  # Substitua isso pelo comando de início apropriado, se necessário
       volumes:
-      - name: app-lanchonete-volume
+      - name: ms-lanchonete-customer-volume
         emptyDir: {}
