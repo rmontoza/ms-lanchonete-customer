@@ -15,7 +15,7 @@ export class CustomerUseCase implements ICustomerUseCase {
 
       const customer = new Costumer('', customerName, document);
 
-      if(await this.customerRepository.findCostumer(document) != null){
+      if(await this.customerRepository.findCustomer(document) != null){
         throw new ValidationError("Customer already exists");
       }
 
@@ -30,7 +30,7 @@ export class CustomerUseCase implements ICustomerUseCase {
     }
     async identifyCustomer(document: string): Promise<Costumer> {
 
-      const costumer = await this.customerRepository.findCostumer(document);
+      const costumer = await this.customerRepository.findCustomer(document);
 
       if(costumer == null){
         throw new NotFoundError("Customer not exists");
