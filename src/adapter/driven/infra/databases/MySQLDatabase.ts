@@ -20,7 +20,8 @@ export class MySQLDatabase implements IDatabase {
             database: process.env.MYSQL_DATABASE,
             waitForConnections: true,
             connectionLimit: 10,
-            queueLimit: 0
+            queueLimit: 0,
+            multipleStatements: true, // Permitir múltiplas instruções
         });
         console.log('MySQL Database connected successfully!');
     }
