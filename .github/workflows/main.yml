@@ -90,7 +90,7 @@ jobs:
 
     - name: Deploy to EKS
       run: |
-          kubectl apply -f src/k8s/appLanchonete-configmap.yaml
-          kubectl apply -f src/k8s/appLanchonete-deployment.yaml
-          kubectl apply -f src/k8s/appLanchonete-service-aws.yaml
-          kubectl apply -f src/k8s/appLanchonete-hpa.yaml
+          kubectl apply -f src/k8s/appLanchonete-customer-configmap.yaml
+          kubectl apply -f src/k8s/appLanchonete-customer-deployment.yaml
+          kubectl apply -f src/k8s/appLanchonete-customer-service-aws.yaml
+          kubectl apply -f src/k8s/appLanchonete-customer-hpa.yaml
